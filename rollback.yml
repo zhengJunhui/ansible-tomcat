@@ -1,0 +1,20 @@
+- name: start tomcat
+  hosts: dev
+  vars:
+    tomcat_service_dir: /xxdata/workspace/tomcat-ansible
+    appfile: markbuilder
+    backup_dir: /xxdata/backup/markbuilder
+
+  tasks:
+    - name: stop tomcat service
+      shell: "ps -ef |grep {{ tomcat_service_dir }} |grep -v grep |awk '{print $2}' |xargs kill -9"
+    - name: rm old appfile
+      file: path={{ tomcat_service_dir }}/webapps/{{ appfile }} state=absent
+    - name: rm old appfile.war
+      file: path={{ tomcat_service_dir }}/webapps/{{ appfile }}.war state=absent
+    - name: copy old backup war
+      shell: cp {{ backup_dir }}/{{ appfile }}.war`date  '+%Y%m%d'` {{ tomcat_service_dir }}/webapps/{{ appfile }}.war
+    - name: unzip war
+      shell: unzip {{ tomcat_service_dir }}/webapps/{{ appfile }}.war -d {{ tomcat_service_dir }}/webapps/{{ appfile }}
+    - name: start tomcat service
+      shell: chdir={{ tomcat_service_dir }}/bin nohup ./startup.sh &

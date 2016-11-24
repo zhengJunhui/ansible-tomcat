@@ -1,0 +1,9 @@
+- name: start tomcat
+  hosts: dev
+  vars:
+    tomcat_service_dir: /xxdata/workspace/tomcat-ansible
+  tasks:
+    - name: stop tomcat service
+      shell: "ps -ef |grep {{ tomcat_service_dir }} |grep -v grep |awk '{print $2}' |xargs kill -9"
+    - name: start tomcat service
+      shell: chdir={{ tomcat_service_dir }}/bin nohup ./startup.sh &
